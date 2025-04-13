@@ -50,15 +50,33 @@
             <!-- Popular Tags from Posts -->
             <div class="space-y-3">
               @php
+                // Hard-coded colors for specific tags to ensure consistency
+                $tagColorMap = [
+                  'technology' => 'blue',
+                  'design' => 'purple',
+                  'development' => 'green',
+                  'marketing' => 'indigo',
+                  'business' => 'pink',
+                  'productivity' => 'red',
+                  'health' => 'yellow',
+                  'finance' => 'orange',
+                  'travel' => 'blue',
+                  'food' => 'purple',
+                  'education' => 'green',
+                  'career' => 'indigo',
+                  'lifestyle' => 'pink',
+                  'photography' => 'red'
+                ];
+                
+                // Default color for any tag not in the map
+                $defaultColor = 'blue';
+                
                 // Collect all tags across posts
                 $tagCounts = [];
                 foreach ($posts as $post) {
                   if (!empty($post->tags)) {
                     foreach ($post->tags as $tag) {
-                      if (!isset($tagCounts[$tag])) {
-                        $tagCounts[$tag] = 0;
-                      }
-                      $tagCounts[$tag]++;
+                      $tagCounts[$tag] = isset($tagCounts[$tag]) ? $tagCounts[$tag] + 1 : 1;
                     }
                   }
                 }
@@ -66,26 +84,25 @@
                 // Sort by count (descending)
                 arsort($tagCounts);
                 
-                // Colors for tags
-                $colors = ['blue', 'purple', 'green', 'indigo', 'pink', 'red', 'yellow', 'orange'];
-                $colorIndex = 0;
-                
                 // Take top 8 tags
                 $popularTags = array_slice($tagCounts, 0, 8, true);
               @endphp
               
               @foreach($popularTags as $tag => $count)
+                @php
+                  // Get color from map or use default
+                  $tagColor = isset($tagColorMap[strtolower($tag)]) ? $tagColorMap[strtolower($tag)] : $defaultColor;
+                @endphp
                 <a href="{{ route('posts.index', ['filterByTag' => $tag]) }}" 
                    class="flex items-center justify-between py-2 px-3 rounded-lg transition hover:bg-gray-100 dark:hover:bg-gray-700">
                   <span class="flex items-center">
-                    <span class="w-2 h-2 rounded-full bg-{{ $colors[$colorIndex % count($colors)] }}-500 mr-2"></span>
+                    <span class="w-2 h-2 rounded-full bg-{{ $tagColor }}-500 mr-2"></span>
                     <span class="text-gray-700 dark:text-gray-300">{{ $tag }}</span>
                   </span>
                   <span class="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs px-2 py-1 rounded-full">
                     {{ $count }}
                   </span>
                 </a>
-                @php $colorIndex++; @endphp
               @endforeach
             </div>
             
@@ -187,12 +204,16 @@
                         </div>
                       @endif
                       
-                      <!-- Tags display over image -->
+                      <!-- Tags display over image - use the same tagColorMap as sidebar -->
                       @if(!empty($post->tags))
                         <div class="absolute top-3 left-3 flex flex-wrap gap-2">
                           @foreach(array_slice($post->tags, 0, 2) as $tag)
+                            @php
+                              // Get color from map or use default
+                              $tagColor = isset($tagColorMap[strtolower($tag)]) ? $tagColorMap[strtolower($tag)] : $defaultColor;
+                            @endphp
                             <a href="{{ route('posts.index', ['filterByTag' => $tag]) }}" 
-                               class="px-2 py-1 text-xs rounded-md bg-blue-500/80 text-white backdrop-blur-sm hover:bg-blue-600/80 transition">
+                              class="px-2 py-1 text-xs rounded-md bg-{{ $tagColor }}-500/80 text-white backdrop-blur-sm hover:bg-{{ $tagColor }}-600/80 transition">
                               {{ $tag }}
                             </a>
                           @endforeach
@@ -267,7 +288,7 @@
                               </svg>
                             @endif
                           </div>
-                          <a href="{{ route('posts.index', ['author' => $post->user->id]) }}" class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:underline">
+                          <a href="{{ route('posts.index', ['author' => $post->user->id ?? 0]) }}" class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:underline">
                             {{ $post->user->name ?? 'Anonymous' }}
                           </a>
                         </div>
@@ -277,7 +298,7 @@
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                             </svg>
-                            {{ $post->likes->count() }}
+                            {{ $post->likes->count() ?? 0 }}
                           </span>
                           
                           <a href="{{ route('posts.show', $post) }}" class="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline">
@@ -293,7 +314,7 @@
               <!-- Pagination - if using Laravel's pagination -->
               @if(method_exists($posts, 'links'))
                 <div class="mt-8">
-                  {{ $posts->links() }}
+                  {{ $posts->appends(request()->except('page'))->links() }}
                 </div>
               @endif
             </div>
@@ -303,14 +324,14 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
               </svg>
               <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                @if(isset($filter))
+                @if(isset($filter) || request()->has('filterByTag') || request()->has('author'))
                   No posts found! Try resetting your filters.
                 @else
                   No posts found!
                 @endif
               </h2>
               <p class="text-gray-600 dark:text-gray-400 max-w-md mx-auto mb-6">
-                @if(isset($filter))
+                @if(isset($filter) || request()->has('filterByTag') || request()->has('author'))
                   The current filters didn't match any available posts.
                 @else
                   We're working on creating valuable content. Check back soon for new articles.
@@ -318,7 +339,7 @@
               </p>
               
               <div class="inline-flex">
-                @if(isset($filter))
+                @if(isset($filter) || request()->has('filterByTag') || request()->has('author'))
                   <a href="{{ route('posts.index') }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                     Clear Filters
                   </a>
@@ -377,4 +398,55 @@
       overflow: hidden;
     }
   </style>
+
+  <!-- JavaScript to make filter links work better -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Ensure tag links preserve existing query parameters except the tag being changed
+      document.querySelectorAll('a[href*="filterByTag"]').forEach(function(link) {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          
+          // Get the tag from the link's href
+          const url = new URL(this.href);
+          const tagValue = url.searchParams.get('filterByTag');
+          
+          // Create new URL with current location and parameters
+          const newUrl = new URL(window.location.href);
+          
+          // Remove any existing filterByTag parameter
+          newUrl.searchParams.delete('filterByTag');
+          
+          // Add the new tag filter
+          newUrl.searchParams.set('filterByTag', tagValue);
+          
+          // Navigate to the new URL
+          window.location.href = newUrl.toString();
+        });
+      });
+      
+      // Similar handling for author links
+      document.querySelectorAll('a[href*="author"]').forEach(function(link) {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          
+          // Get the author from the link's href
+          const url = new URL(this.href);
+          const authorValue = url.searchParams.get('author');
+          
+          // Create new URL with current location and parameters
+          const newUrl = new URL(window.location.href);
+          
+          // Remove any existing author parameter
+          newUrl.searchParams.delete('author');
+          
+          // Add the new author filter
+          newUrl.searchParams.set('author', authorValue);
+          
+          // Navigate to the new URL
+          window.location.href = newUrl.toString();
+        });
+      });
+    });
+  </script>
 </x-app-layout>

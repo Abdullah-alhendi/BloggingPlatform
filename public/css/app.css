@@ -1337,9 +1337,6 @@ select {
 .me-2 {
   margin-inline-end: 0.5rem;
 }
-.me-3 {
-  margin-inline-end: 0.75rem;
-}
 .ml-1 {
   margin-left: 0.25rem;
 }
@@ -1369,6 +1366,9 @@ select {
 }
 .mr-3 {
   margin-right: 0.75rem;
+}
+.ms-2 {
+  margin-inline-start: 0.5rem;
 }
 .ms-auto {
   margin-inline-start: auto;
@@ -1931,9 +1931,6 @@ select {
 .border-0 {
   border-width: 0px;
 }
-.border-2 {
-  border-width: 2px;
-}
 .border-4 {
   border-width: 4px;
 }
@@ -1997,6 +1994,9 @@ select {
   --tw-border-opacity: 1;
   border-color: rgb(31 41 55 / var(--tw-border-opacity, 1));
 }
+.border-green-600\/30 {
+  border-color: rgb(22 163 74 / 0.3);
+}
 .border-indigo-400 {
   --tw-border-opacity: 1;
   border-color: rgb(129 140 248 / var(--tw-border-opacity, 1));
@@ -2041,9 +2041,6 @@ select {
 .bg-blue-500 {
   --tw-bg-opacity: 1;
   background-color: rgb(59 130 246 / var(--tw-bg-opacity, 1));
-}
-.bg-blue-500\/80 {
-  background-color: rgb(59 130 246 / 0.8);
 }
 .bg-blue-600 {
   --tw-bg-opacity: 1;
@@ -2115,6 +2112,9 @@ select {
 .bg-green-500 {
   --tw-bg-opacity: 1;
   background-color: rgb(34 197 94 / var(--tw-bg-opacity, 1));
+}
+.bg-green-900\/30 {
+  background-color: rgb(20 83 45 / 0.3);
 }
 .bg-indigo-50 {
   --tw-bg-opacity: 1;
@@ -2801,6 +2801,10 @@ select {
   --tw-text-opacity: 1;
   color: rgb(17 24 39 / var(--tw-text-opacity, 1));
 }
+.text-green-400 {
+  --tw-text-opacity: 1;
+  color: rgb(74 222 128 / var(--tw-text-opacity, 1));
+}
 .text-green-500 {
   --tw-text-opacity: 1;
   color: rgb(34 197 94 / var(--tw-text-opacity, 1));
@@ -3222,9 +3226,6 @@ pre code.torchlight .summary-caret {
 .hover\:bg-blue-600:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(37 99 235 / var(--tw-bg-opacity, 1));
-}
-.hover\:bg-blue-600\/80:hover {
-  background-color: rgb(37 99 235 / 0.8);
 }
 .hover\:bg-blue-700:hover {
   --tw-bg-opacity: 1;
@@ -3948,6 +3949,10 @@ pre code.torchlight .summary-caret {
     width: 10rem;
   }
 
+  .sm\:w-auto {
+    width: auto;
+  }
+
   .sm\:w-fit {
     width: -moz-fit-content;
     width: fit-content;
@@ -3963,6 +3968,10 @@ pre code.torchlight .summary-caret {
 
   .sm\:grid-cols-2 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sm\:flex-row {
+    flex-direction: row;
   }
 
   .sm\:items-center {
